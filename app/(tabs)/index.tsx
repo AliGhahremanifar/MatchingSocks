@@ -63,20 +63,35 @@ export default function HomeScreen() {
           AsyncStorage.getItem("consecutiveMissedDays"),
         ]);
 
+      // console.log("Loading streak data:", {
+      //   storedStreakDays,
+      //   storedLastShareDate,
+      //   storedMissedDays,
+      // });
+
       if (storedStreakDays) {
         const loadedStreak = parseInt(storedStreakDays);
         setStreakDays(loadedStreak);
         console.log(`Loaded streak: ${loadedStreak}`);
+      } else {
+        console.log("No stored streak found, initializing to 0");
+        setStreakDays(0);
+        // Initialize streak data if it doesn't exist
+        await AsyncStorage.setItem("streakDays", "0");
       }
       if (storedLastShareDate) {
         setLastShareDate(storedLastShareDate);
+        // console.log(`Loaded last share date: ${storedLastShareDate}`);
       }
       if (storedMissedDays) {
         setConsecutiveMissedDays(parseInt(storedMissedDays));
+        // console.log(`Loaded missed days: ${storedMissedDays}`);
       }
 
-      // Check streak status
-      await checkStreakStatus();
+      // Check streak status only if we have a last share date
+      if (storedLastShareDate) {
+        await checkStreakStatus();
+      }
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -159,6 +174,9 @@ export default function HomeScreen() {
       // Update streak after successful share
       console.log("Share successful, updating streak...");
       await updateStreakOnShare();
+
+      // Small delay to ensure state is properly updated
+      await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (error) {
       console.error("Error sharing:", error);
       Alert.alert(t("common.error"), t("share.shareError"));
@@ -172,6 +190,7 @@ export default function HomeScreen() {
 
     if (!lastShareDate) {
       // First time using the app
+      // console.log("First time using app, no streak check needed");
       return;
     }
 
@@ -180,15 +199,20 @@ export default function HomeScreen() {
         (1000 * 60 * 60 * 24)
     );
 
+    // console.log(`Days since last share: ${daysDiff}`);
+
     if (daysDiff === 0) {
       // Same day, no change needed
+      // console.log("Same day as last share, no change needed");
       return;
     } else if (daysDiff === 1) {
       // Missed one day - freeze streak
+      // console.log("Missed one day, freezing streak");
       setConsecutiveMissedDays(1);
       await AsyncStorage.setItem("consecutiveMissedDays", "1");
     } else if (daysDiff >= 2) {
       // Missed 2 or more days - reset streak
+      // console.log("Missed 2+ days, resetting streak to 0");
       setStreakDays(0);
       setConsecutiveMissedDays(0);
       await Promise.all([
@@ -201,25 +225,61 @@ export default function HomeScreen() {
   const updateStreakOnShare = async () => {
     const today = new Date().toISOString().split("T")[0];
 
+    console.log(
+      `Attempting to update streak. Today: ${today}, Last share: ${lastShareDate}`
+    );
+
     if (lastShareDate === today) {
       // Already shared today, don't increment
+      // console.log("Already shared today, no increment");
       return;
     }
 
-    // Always increment streak by 2 when sharing (daily share + daily bonus)
-    const newStreakDays = streakDays + 2;
+    // Calculate new streak based on missed days
+    let newStreakDays = streakDays;
 
+    if (lastShareDate) {
+      const daysDiff = Math.floor(
+        (new Date(today).getTime() - new Date(lastShareDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
+      if (daysDiff === 1) {
+        // Missed one day, continue from current streak
+        newStreakDays = streakDays + 1;
+        console.log(
+          `Missed one day, continuing streak: ${streakDays} → ${newStreakDays}`
+        );
+      } else if (daysDiff >= 2) {
+        // Missed 2+ days, start new streak
+        newStreakDays = 1;
+        console.log(
+          `Missed 2+ days, starting new streak: ${streakDays} → ${newStreakDays}`
+        );
+      } else {
+        // Same day or first time, increment normally
+        newStreakDays = streakDays + 1;
+        console.log(`Normal increment: ${streakDays} → ${newStreakDays}`);
+      }
+    } else {
+      // First time sharing
+      newStreakDays = 1;
+      console.log(`First time sharing, starting streak: 0 → ${newStreakDays}`);
+    }
+
+    // Update state first
     setStreakDays(newStreakDays);
     setLastShareDate(today);
     setConsecutiveMissedDays(0);
 
+    // Then save to storage
     await Promise.all([
       AsyncStorage.setItem("streakDays", newStreakDays.toString()),
       AsyncStorage.setItem("lastShareDate", today),
       AsyncStorage.setItem("consecutiveMissedDays", "0"),
     ]);
 
-    console.log(`Streak updated: ${streakDays} → ${newStreakDays}`);
+    // console.log(`Streak successfully updated to: ${newStreakDays}`);
   };
 
   useEffect(() => {
@@ -229,8 +289,11 @@ export default function HomeScreen() {
   // Refresh data when screen comes into focus (e.g., when returning from settings)
   useFocusEffect(
     React.useCallback(() => {
-      loadData();
-    }, [])
+      // Only reload data if we're not currently sharing
+      if (!sharing) {
+        loadData();
+      }
+    }, [sharing])
   );
 
   return (

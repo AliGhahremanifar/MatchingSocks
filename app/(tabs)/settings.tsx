@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -135,6 +136,28 @@ export default function SettingsScreen() {
         },
       },
     ]);
+  };
+
+  const resetStreak = async () => {
+    Alert.alert(
+      "Reset Streak",
+      "Are you sure you want to reset your streak to 0?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            await Promise.all([
+              AsyncStorage.setItem("streakDays", "0"),
+              AsyncStorage.setItem("lastShareDate", ""),
+              AsyncStorage.setItem("consecutiveMissedDays", "0"),
+            ]);
+            Alert.alert("Success", "Streak has been reset to 0");
+          },
+        },
+      ]
+    );
   };
 
   const renderAddFriendModal = () => (
@@ -361,6 +384,17 @@ export default function SettingsScreen() {
           </Text>
           <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
         </TouchableOpacity>
+        {/* 
+        <TouchableOpacity
+          style={[styles.infoItem, isRTL && styles.rtlInfoItem]}
+          onPress={resetStreak}
+        >
+          <Ionicons name="trophy-outline" size={20} color="#FF3B30" />
+          <Text style={[styles.infoText, isRTL && styles.rtlInfoText]}>
+            Reset Streak
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+        </TouchableOpacity> */}
 
         <View
           style={[
