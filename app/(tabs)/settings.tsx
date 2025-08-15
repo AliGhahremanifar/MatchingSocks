@@ -14,6 +14,7 @@ import {
 } from "react-native";
 
 import { useTranslation } from "react-i18next";
+import AdBanner from "../../components/AdBanner";
 import EnhancedColorPicker from "../../components/EnhancedColorPicker";
 import LanguageSelector from "../../components/LanguageSelector";
 import ProfilePicturePicker from "../../components/ProfilePicturePicker";
@@ -215,176 +216,196 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container}>
+      <AdBanner streakDays={0} />
       <View style={styles.header}>
         <Text style={[styles.title, isRTL && styles.rtlTitle]}>Settings</Text>
       </View>
 
-      {/* Language Section */}
-      <View style={styles.section}>
-        <LanguageSelector />
-      </View>
-
-      {/* Group Picture Section */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, isRTL && styles.rtlSectionTitle]}>
-          {t("settings.groupPicture")}
-        </Text>
-        <Text
-          style={[styles.sectionSubtitle, isRTL && styles.rtlSectionSubtitle]}
-        >
-          {t("settings.groupPictureDesc")}
-        </Text>
-        <View style={styles.groupPictureSection}>
-          <ProfilePicturePicker
-            currentPicture={groupPicture}
-            onPictureSelected={handleGroupPictureChange}
-            size={80}
-          />
+        {/* Language Section */}
+        <View style={styles.section}>
+          <LanguageSelector />
         </View>
-      </View>
 
-      {/* Friends Section */}
-      <View style={styles.section}>
-        <View style={[styles.sectionHeader, isRTL && styles.rtlSectionHeader]}>
+        {/* Group Picture Section */}
+        <View style={styles.section}>
           <Text style={[styles.sectionTitle, isRTL && styles.rtlSectionTitle]}>
-            {t("settings.friends")}
+            {t("settings.groupPicture")}
           </Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowAddFriend(true)}
+          <Text
+            style={[styles.sectionSubtitle, isRTL && styles.rtlSectionSubtitle]}
           >
-            <Ionicons name="add" size={20} color="#007AFF" />
-          </TouchableOpacity>
-        </View>
-        <Text
-          style={[styles.sectionSubtitle, isRTL && styles.rtlSectionSubtitle]}
-        >
-          {t("settings.friendsDesc")}
-        </Text>
-
-        {friends.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={32} color="#8E8E93" />
-            <Text style={[styles.emptyText, isRTL && styles.rtlEmptyText]}>
-              {t("settings.noFriendsAdded")}
-            </Text>
-            <Text
-              style={[styles.emptySubtext, isRTL && styles.rtlEmptySubtext]}
-            >
-              {t("settings.addFriendsButton")}
-            </Text>
+            {t("settings.groupPictureDesc")}
+          </Text>
+          <View style={styles.groupPictureSection}>
+            <ProfilePicturePicker
+              currentPicture={groupPicture}
+              onPictureSelected={handleGroupPictureChange}
+              size={80}
+            />
           </View>
-        ) : (
-          <View style={styles.friendsList}>
-            {friends.map((friend) => (
-              <View
-                key={friend.id}
-                style={[styles.friendItem, isRTL && styles.rtlFriendItem]}
+        </View>
+
+        {/* Friends Section */}
+        <View style={styles.section}>
+          <View
+            style={[styles.sectionHeader, isRTL && styles.rtlSectionHeader]}
+          >
+            <Text
+              style={[styles.sectionTitle, isRTL && styles.rtlSectionTitle]}
+            >
+              {t("settings.friends")}
+            </Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setShowAddFriend(true)}
+            >
+              <Ionicons name="add" size={20} color="#007AFF" />
+            </TouchableOpacity>
+          </View>
+          <Text
+            style={[styles.sectionSubtitle, isRTL && styles.rtlSectionSubtitle]}
+          >
+            {t("settings.friendsDesc")}
+          </Text>
+
+          {friends.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="people-outline" size={32} color="#8E8E93" />
+              <Text style={[styles.emptyText, isRTL && styles.rtlEmptyText]}>
+                {t("settings.noFriendsAdded")}
+              </Text>
+              <Text
+                style={[styles.emptySubtext, isRTL && styles.rtlEmptySubtext]}
               >
+                {t("settings.addFriendsButton")}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.friendsList}>
+              {friends.map((friend) => (
                 <View
-                  style={[styles.friendInfo, isRTL && styles.rtlFriendInfo]}
+                  key={friend.id}
+                  style={[styles.friendItem, isRTL && styles.rtlFriendItem]}
                 >
-                  <View style={[styles.avatar, isRTL && styles.rtlAvatar]}>
-                    <Text style={styles.avatarText}>
-                      {friend.name.charAt(0).toUpperCase()}
+                  <View
+                    style={[styles.friendInfo, isRTL && styles.rtlFriendInfo]}
+                  >
+                    <View style={[styles.avatar, isRTL && styles.rtlAvatar]}>
+                      <Text style={styles.avatarText}>
+                        {friend.name.charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[styles.friendName, isRTL && styles.rtlFriendName]}
+                    >
+                      {friend.name}
                     </Text>
                   </View>
-                  <Text
-                    style={[styles.friendName, isRTL && styles.rtlFriendName]}
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => removeFriend(friend.id)}
                   >
-                    {friend.name}
-                  </Text>
+                    <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  style={styles.removeButton}
-                  onPress={() => removeFriend(friend.id)}
-                >
-                  <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Colors Section */}
+        <View style={styles.section}>
+          <View
+            style={[styles.sectionHeader, isRTL && styles.rtlSectionHeader]}
+          >
+            <Text
+              style={[styles.sectionTitle, isRTL && styles.rtlSectionTitle]}
+            >
+              {t("settings.sockColors")}
+            </Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setShowColorPicker(true)}
+            >
+              <Ionicons
+                name="color-palette-outline"
+                size={20}
+                color="#007AFF"
+              />
+            </TouchableOpacity>
+          </View>
+          <Text
+            style={[styles.sectionSubtitle, isRTL && styles.rtlSectionSubtitle]}
+          >
+            {t("settings.sockColorsDesc")}
+          </Text>
+
+          <View style={styles.colorsGrid}>
+            {colors.map((color) => (
+              <View key={color.id} style={styles.colorItem}>
+                <View
+                  style={[
+                    styles.colorCircle,
+                    { backgroundColor: color.hexCode },
+                  ]}
+                />
+                <Text style={styles.colorName}>
+                  {getTranslatedColorName(color.name, t)}
+                </Text>
               </View>
             ))}
           </View>
-        )}
-      </View>
 
-      {/* Colors Section */}
-      <View style={styles.section}>
-        <View style={[styles.sectionHeader, isRTL && styles.rtlSectionHeader]}>
-          <Text style={[styles.sectionTitle, isRTL && styles.rtlSectionTitle]}>
-            {t("settings.sockColors")}
-          </Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowColorPicker(true)}
-          >
-            <Ionicons name="color-palette-outline" size={20} color="#007AFF" />
-          </TouchableOpacity>
-        </View>
-        <Text
-          style={[styles.sectionSubtitle, isRTL && styles.rtlSectionSubtitle]}
-        >
-          {t("settings.sockColorsDesc")}
-        </Text>
-
-        <View style={styles.colorsGrid}>
-          {colors.map((color) => (
-            <View key={color.id} style={styles.colorItem}>
-              <View
-                style={[styles.colorCircle, { backgroundColor: color.hexCode }]}
+          {colors.length === 0 && (
+            <View style={styles.emptyState}>
+              <Ionicons
+                name="color-palette-outline"
+                size={32}
+                color="#8E8E93"
               />
-              <Text style={styles.colorName}>
-                {getTranslatedColorName(color.name, t)}
+              <Text style={[styles.emptyText, isRTL && styles.rtlEmptyText]}>
+                {t("settings.noColorsSelected")}
+              </Text>
+              <Text
+                style={[styles.emptySubtext, isRTL && styles.rtlEmptySubtext]}
+              >
+                {t("settings.selectColorsButton")}
               </Text>
             </View>
-          ))}
+          )}
         </View>
 
-        {colors.length === 0 && (
-          <View style={styles.emptyState}>
-            <Ionicons name="color-palette-outline" size={32} color="#8E8E93" />
-            <Text style={[styles.emptyText, isRTL && styles.rtlEmptyText]}>
-              {t("settings.noColorsSelected")}
-            </Text>
-            <Text
-              style={[styles.emptySubtext, isRTL && styles.rtlEmptySubtext]}
-            >
-              {t("settings.selectColorsButton")}
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* App Info Section */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, isRTL && styles.rtlSectionTitle]}>
-          {t("settings.appInfo")}
-        </Text>
-
-        <TouchableOpacity
-          style={[styles.infoItem, isRTL && styles.rtlInfoItem]}
-        >
-          <Ionicons
-            name="information-circle-outline"
-            size={20}
-            color="#007AFF"
-          />
-          <Text style={[styles.infoText, isRTL && styles.rtlInfoText]}>
-            {t("settings.version")}
+        {/* App Info Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, isRTL && styles.rtlSectionTitle]}>
+            {t("settings.appInfo")}
           </Text>
-          <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.infoItem, isRTL && styles.rtlInfoItem]}
-          onPress={resetToOnboarding}
-        >
-          <Ionicons name="refresh-outline" size={20} color="#FF9500" />
-          <Text style={[styles.infoText, isRTL && styles.rtlInfoText]}>
-            {t("settings.resetApp")}
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
-        </TouchableOpacity>
-        {/* 
+          <TouchableOpacity
+            style={[styles.infoItem, isRTL && styles.rtlInfoItem]}
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color="#007AFF"
+            />
+            <Text style={[styles.infoText, isRTL && styles.rtlInfoText]}>
+              {t("settings.version")}
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.infoItem, isRTL && styles.rtlInfoItem]}
+            onPress={resetToOnboarding}
+          >
+            <Ionicons name="refresh-outline" size={20} color="#FF9500" />
+            <Text style={[styles.infoText, isRTL && styles.rtlInfoText]}>
+              {t("settings.resetApp")}
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+          </TouchableOpacity>
+          {/* 
         <TouchableOpacity
           style={[styles.infoItem, isRTL && styles.rtlInfoItem]}
           onPress={resetStreak}
@@ -396,25 +417,25 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
         </TouchableOpacity> */}
 
-        <View
-          style={[
-            styles.poweredByContainer,
-            isRTL && styles.rtlPoweredByContainer,
-          ]}
-        >
-          <Text
-            style={[styles.poweredByText, isRTL && styles.rtlPoweredByText]}
+          <View
+            style={[
+              styles.poweredByContainer,
+              isRTL && styles.rtlPoweredByContainer,
+            ]}
           >
-            Powered by AI Colonizer
-          </Text>
+            <Text
+              style={[styles.poweredByText, isRTL && styles.rtlPoweredByText]}
+            >
+              Powered by AI Colonizer
+            </Text>
+          </View>
         </View>
-      </View>
 
-      {renderAddFriendModal()}
-      {renderColorPickerModal()}
-    </ScrollView>
-  );
-}
+         {renderAddFriendModal()}
+         {renderColorPickerModal()}
+     </ScrollView>
+   );
+ }
 
 const styles = StyleSheet.create({
   container: {

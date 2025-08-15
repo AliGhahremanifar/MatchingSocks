@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 
 import { useTranslation } from "react-i18next";
+import AdBanner from "../../components/AdBanner";
 import { Text, View } from "../../components/Themed";
 import { useLanguage } from "../../hooks/useLanguage";
 import { DailyColor } from "../../types";
@@ -70,6 +71,7 @@ export default function HistoryScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
+      <AdBanner streakDays={0} />
       <View style={styles.header}>
         <Text style={styles.title}>{t("history.title")}</Text>
         <Text style={styles.subtitle}>{t("history.subtitle")}</Text>

@@ -15,6 +15,7 @@ import {
 import ViewShot from "react-native-view-shot";
 
 import { useTranslation } from "react-i18next";
+import AdBanner from "../../components/AdBanner";
 import ShareableCard from "../../components/ShareableCard";
 import { Text, View } from "../../components/Themed";
 import { useLanguage } from "../../hooks/useLanguage";
@@ -303,6 +304,7 @@ export default function HomeScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
+      <AdBanner streakDays={streakDays} />
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.titleSection}>
