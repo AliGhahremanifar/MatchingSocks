@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   colorTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 15,
   },
@@ -211,11 +211,12 @@ const styles = StyleSheet.create({
   },
   colorName: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#333",
   },
   colorDescription: {
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#666",
     lineHeight: 22,
   },
@@ -234,18 +235,19 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
     marginBottom: 10,
   },
   appName: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#007AFF",
     marginBottom: 5,
   },
   poweredBy: {
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: "Vazir-Bold",
     color: "#8E8E93",
     fontStyle: "italic",
   },
@@ -268,7 +270,7 @@ const styles = StyleSheet.create({
   },
   streakDayBadgeText: {
     fontSize: 12,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#FFFFFF",
     marginLeft: 4,
   },

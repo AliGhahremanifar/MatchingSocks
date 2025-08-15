@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 20,
     textAlign: "center",
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#333",
     marginLeft: 15,
   },
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
   },
 });

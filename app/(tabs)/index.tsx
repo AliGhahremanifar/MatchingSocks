@@ -492,6 +492,7 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
   },
   colorCard: {
@@ -508,7 +509,7 @@ const styles = StyleSheet.create({
   },
   colorTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 15,
   },
@@ -542,11 +543,12 @@ const styles = StyleSheet.create({
   },
   colorName: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#333",
   },
   colorDescription: {
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#666",
     lineHeight: 22,
   },
@@ -556,12 +558,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 5,
   },
   sectionSubtitle: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
     marginBottom: 20,
   },
@@ -580,6 +583,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
     textAlign: "center",
     lineHeight: 20,
@@ -611,7 +615,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#fff",
   },
   friendDetails: {
@@ -619,12 +623,13 @@ const styles = StyleSheet.create({
   },
   friendName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 2,
   },
   friendStatus: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
   },
   checkIcon: {
@@ -646,12 +651,13 @@ const styles = StyleSheet.create({
   },
   tipTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 5,
   },
   tipText: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#666",
     lineHeight: 20,
   },
@@ -677,7 +683,7 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 15,
   },
@@ -691,12 +697,13 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#007AFF",
     marginBottom: 5,
   },
   statLabel: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
   },
   statDivider: {
@@ -721,7 +728,7 @@ const styles = StyleSheet.create({
   },
   changeColorButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#007AFF",
     marginLeft: 8,
   },
@@ -749,7 +756,7 @@ const styles = StyleSheet.create({
   },
   addFriendButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#fff",
     marginLeft: 8,
   },
@@ -781,7 +788,7 @@ const styles = StyleSheet.create({
   },
   shareButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#FFFFFF",
     marginLeft: 8,
   },
@@ -809,7 +816,7 @@ const styles = StyleSheet.create({
   },
   streakDayBadgeText: {
     fontSize: 12,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#FFFFFF",
     marginLeft: 4,
   },

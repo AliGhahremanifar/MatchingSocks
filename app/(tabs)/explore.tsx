@@ -191,12 +191,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 24,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 10,
   },
   emptyText: {
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
     textAlign: "center",
     lineHeight: 24,
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
   },
   todayBadge: {
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
   },
   todayBadgeText: {
     fontSize: 10,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#fff",
   },
   colorSection: {
@@ -259,6 +260,7 @@ const styles = StyleSheet.create({
   },
   colorDescription: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
   },
   divider: {
@@ -274,7 +276,7 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 15,
   },

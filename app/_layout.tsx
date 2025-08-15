@@ -54,7 +54,7 @@ export default function RootLayout() {
                 },
                 headerTintColor: "#333",
                 headerTitleStyle: {
-                  fontWeight: "600",
+                  fontFamily: "Vazir-Bold",
                 },
               }}
             />

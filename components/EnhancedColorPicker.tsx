@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 20,
     textAlign: "center",
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginTop: 15,
     marginBottom: 10,
@@ -292,6 +292,7 @@ const styles = StyleSheet.create({
   colorPickerName: {
     flex: 1,
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#333",
   },
   rtlColorPickerName: {
@@ -333,6 +334,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
   },
   rtlNameInput: {
     textAlign: "right",
@@ -343,6 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
   },
   rtlHexInput: {
     textAlign: "right",
@@ -357,7 +360,7 @@ const styles = StyleSheet.create({
   addCustomButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
   },
   modalButton: {
     backgroundColor: "#007AFF",

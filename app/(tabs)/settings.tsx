@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#333",
   },
   section: {
@@ -416,6 +416,7 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
     marginBottom: 15,
   },
@@ -435,13 +436,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginTop: 10,
     marginBottom: 5,
   },
   emptySubtext: {
     fontSize: 14,
+    fontFamily: "Vazir-Medium",
     color: "#8E8E93",
     textAlign: "center",
     lineHeight: 20,
@@ -474,11 +476,12 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#fff",
   },
   friendName: {
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#333",
   },
   removeButton: {
@@ -540,7 +543,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     marginBottom: 20,
     textAlign: "center",
@@ -551,6 +554,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     marginBottom: 20,
   },
   modalButtons: {
@@ -570,7 +574,7 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
   },
   modalButtonTextPrimary: {
@@ -603,6 +607,7 @@ const styles = StyleSheet.create({
   colorPickerName: {
     flex: 1,
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     color: "#333",
   },
   groupPictureSection: {

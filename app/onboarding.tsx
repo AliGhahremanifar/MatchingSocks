@@ -352,6 +352,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginRight: 10,
     fontSize: 16,
+    fontFamily: "Vazir-Medium",
     backgroundColor: "#fff",
   },
   addButton: {
@@ -405,11 +406,11 @@ const styles = StyleSheet.create({
   checkmarkText: {
     color: "#fff",
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
   },
   colorName: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     textShadowColor: "rgba(0,0,0,0.5)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
@@ -570,12 +571,12 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
     color: "#fff",
   },
   friendName: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: "Vazir-Bold",
     color: "#333",
     textAlign: "center",
     marginBottom: 8,
@@ -597,6 +598,6 @@ const styles = StyleSheet.create({
   removeButtonText: {
     color: "#fff",
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: "Vazir-Bold",
   },
 });
