@@ -11,7 +11,7 @@ import { getDailyColors, getTranslatedColorName } from "../../utils/storage";
 
 export default function HistoryScreen() {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, currentLanguage } = useLanguage();
   const [dailyColors, setDailyColors] = useState<DailyColor[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -61,7 +61,7 @@ export default function HistoryScreen() {
   };
 
   const getDateLabel = (dateString: string) => {
-    return getRelativeDate(dateString, isRTL);
+    return getRelativeDate(dateString, isRTL, currentLanguage);
   };
 
   return (
@@ -174,7 +174,8 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: "Vazir-Bold",
     color: "#333",
-    paddingVertical: 10,
+    paddingTop: 10,
+    paddingBottom: 15,
   },
   subtitle: {
     fontSize: 16,

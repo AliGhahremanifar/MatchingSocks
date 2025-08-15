@@ -33,7 +33,7 @@ import {
 
 export default function HomeScreen() {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, currentLanguage } = useLanguage();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [todaysColor, setTodaysColor] = useState<SockColor | null>(null);
   const [groupPicture, setGroupPicture] = useState<string | null>(null);
@@ -309,7 +309,9 @@ export default function HomeScreen() {
         <View style={styles.headerContent}>
           <View style={styles.titleSection}>
             <Text style={styles.title}>{t("home.title")}</Text>
-            <Text style={styles.date}>{formatDate(new Date(), isRTL)}</Text>
+            <Text style={styles.date}>
+              {formatDate(new Date(), isRTL, currentLanguage)}
+            </Text>
           </View>
           {groupPicture && (
             <View style={styles.groupPictureContainer}>
@@ -553,7 +555,8 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: "Vazir-Bold",
     color: "#333",
-    paddingVertical: 5,
+    paddingTop: 10,
+    paddingBottom: 15,
   },
   date: {
     fontSize: 16,
