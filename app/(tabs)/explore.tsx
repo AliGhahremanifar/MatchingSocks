@@ -1,110 +1,313 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useTranslation } from "react-i18next";
+import { Text, View } from "../../components/Themed";
+import { useLanguage } from "../../hooks/useLanguage";
+import { DailyColor } from "../../types";
+import { getRelativeDate } from "../../utils/dateUtils";
+import { getDailyColors, getTranslatedColorName } from "../../utils/storage";
 
-export default function TabTwoScreen() {
+export default function HistoryScreen() {
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
+  const [dailyColors, setDailyColors] = useState<DailyColor[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    try {
+      const history = await getDailyColors();
+      // Sort by date (newest first)
+      const sortedHistory = history.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      setDailyColors(sortedHistory);
+    } catch (error) {
+      console.error("Error loading history:", error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadHistory();
+    setRefreshing(false);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const isToday = (dateString: string) => {
+    const today = new Date().toISOString().split("T")[0];
+    return dateString === today;
+  };
+
+  const isYesterday = (dateString: string) => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = yesterday.toISOString().split("T")[0];
+    return dateString === yesterdayString;
+  };
+
+  const getDateLabel = (dateString: string) => {
+    return getRelativeDate(dateString, isRTL);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>{t("history.title")}</Text>
+        <Text style={styles.subtitle}>{t("history.subtitle")}</Text>
+      </View>
+
+      {dailyColors.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyEmoji}>🧦</Text>
+          <Text style={styles.emptyTitle}>{t("history.noHistoryYet")}</Text>
+          <Text style={styles.emptyText}>{t("history.noHistoryDesc")}</Text>
+        </View>
+      ) : (
+        <View style={styles.historyList}>
+          {dailyColors.map((dailyColor, index) => (
+            <View
+              key={dailyColor.date}
+              style={[
+                styles.historyItem,
+                isToday(dailyColor.date) && styles.todayItem,
+              ]}
+            >
+              <View style={styles.dateSection}>
+                <Text style={styles.dateLabel}>
+                  {getDateLabel(dailyColor.date)}
+                </Text>
+                {isToday(dailyColor.date) && (
+                  <View style={styles.todayBadge}>
+                    <Text style={styles.todayBadgeText}>TODAY</Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.colorSection}>
+                <View
+                  style={[
+                    styles.colorCircle,
+                    { backgroundColor: dailyColor.color.hexCode },
+                  ]}
+                />
+                <View style={styles.colorInfo}>
+                  <Text style={styles.colorName}>
+                    {getTranslatedColorName(dailyColor.color.name, t)}
+                  </Text>
+                  <Text style={styles.colorDescription}>
+                    {isToday(dailyColor.date)
+                      ? t("history.currentColor")
+                      : t("history.sockColorForDay")}
+                  </Text>
+                </View>
+              </View>
+
+              {index < dailyColors.length - 1 && (
+                <View style={styles.divider} />
+              )}
+            </View>
+          ))}
+        </View>
+      )}
+
+      <View style={styles.statsCard}>
+        <Text style={styles.statsTitle}>{t("history.sockMatchingStats")}</Text>
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{dailyColors.length}</Text>
+            <Text style={styles.statLabel}>{t("history.daysOfMatching")}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>
+              {new Set(dailyColors.map((dc) => dc.color.id)).size}
+            </Text>
+            <Text style={styles.statLabel}>{t("history.sockColors")}</Text>
+          </View>
+        </View>
+        <View style={styles.sockEmojiRow}>
+          <Text style={styles.sockEmoji}>🧦</Text>
+          <Text style={styles.sockEmoji}>🧦</Text>
+          <Text style={styles.sockEmoji}>🧦</Text>
+          <Text style={styles.sockEmoji}>🧦</Text>
+          <Text style={styles.sockEmoji}>🧦</Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  header: {
+    padding: 20,
+    paddingTop: 40,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
+  },
+  title: {
+    fontSize: 32,
+    fontFamily: "Vazir-Bold",
+    color: "#333",
+    paddingVertical: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#8E8E93",
+  },
+  emptyState: {
+    alignItems: "center",
+    padding: 60,
+    margin: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+  },
+  emptyEmoji: {
+    fontSize: 64,
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 10,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#8E8E93",
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  historyList: {
+    margin: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  historyItem: {
+    padding: 20,
+  },
+  todayItem: {
+    backgroundColor: "#F0F8FF",
+  },
+  dateSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  dateLabel: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+  },
+  todayBadge: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  todayBadgeText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  colorSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  colorCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+    borderWidth: 3,
+    borderColor: "#E5E5EA",
+  },
+  colorInfo: {
+    flex: 1,
+  },
+  colorName: {
+    fontSize: 20,
+    fontFamily: "Vazir-Bold",
+    color: "#333",
+    marginBottom: 5,
+  },
+  colorDescription: {
+    fontSize: 14,
+    color: "#8E8E93",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#F2F2F7",
+    marginTop: 20,
+  },
+  statsCard: {
+    margin: 20,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+  },
+  statsTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 15,
+  },
+  statsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statNumber: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#007AFF",
+    marginBottom: 5,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: "#8E8E93",
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: "#F2F2F7",
+  },
+  sockEmojiRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 15,
+    gap: 10,
+  },
+  sockEmoji: {
+    fontSize: 20,
   },
 });

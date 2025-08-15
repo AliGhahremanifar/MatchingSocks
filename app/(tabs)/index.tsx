@@ -1,75 +1,772 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import ViewShot from "react-native-view-shot";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useTranslation } from "react-i18next";
+import ShareableCard from "../../components/ShareableCard";
+import { Text, View } from "../../components/Themed";
+import { useLanguage } from "../../hooks/useLanguage";
+import { Friend, SockColor } from "../../types";
+import { formatDate } from "../../utils/dateUtils";
+import {
+  generateTodaysColor,
+  getDailyColors,
+  getFriends,
+  getGroupPicture,
+  getTodaysColor,
+  getTranslatedColorName,
+  saveDailyColors,
+} from "../../utils/storage";
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [todaysColor, setTodaysColor] = useState<SockColor | null>(null);
+  const [groupPicture, setGroupPicture] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const shareableCardRef = useRef<ViewShot>(null);
+
+  const loadData = async () => {
+    try {
+      const [friendsData, colorData, pictureData] = await Promise.all([
+        getFriends(),
+        getTodaysColor(),
+        getGroupPicture(),
+      ]);
+      setFriends(friendsData);
+      setTodaysColor(colorData);
+      setGroupPicture(pictureData);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
+  const changeTodaysColor = async () => {
+    try {
+      const newColor = await generateTodaysColor();
+      const today = new Date().toISOString().split("T")[0];
+      const dailyColors = await getDailyColors();
+
+      // Update today's color
+      const existingIndex = dailyColors.findIndex((dc) => dc.date === today);
+      if (existingIndex >= 0) {
+        dailyColors[existingIndex].color = newColor;
+      } else {
+        dailyColors.push({ date: today, color: newColor });
+      }
+
+      await saveDailyColors(dailyColors);
+      setTodaysColor(newColor);
+
+      Alert.alert(
+        "",
+        t("home.colorChangedMessage", {
+          color: getTranslatedColorName(newColor.name, t),
+        })
+      );
+    } catch (error) {
+      console.error("Error changing today's color:", error);
+      Alert.alert(t("common.error"), t("home.colorChangeError"));
+    }
+  };
+
+  const addFriendFromHome = () => {
+    // Navigate to settings tab to add friend
+    // We'll use a simple alert for now since tab navigation is handled by the tab bar
+    Alert.alert(t("home.addFriendTitle"), t("home.addFriendMessage"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("home.goToSettings"),
+        onPress: () => {
+          // The user can manually navigate to settings tab
+        },
+      },
+    ]);
+  };
+
+  const shareTodaysColor = async () => {
+    if (!todaysColor || sharing) return;
+
+    setSharing(true);
+    try {
+      // Request media library permissions
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(t("common.error"), t("share.permissionDenied"));
+        return;
+      }
+
+      // Capture the shareable card as image
+      const uri = await shareableCardRef.current?.capture?.();
+      if (!uri) {
+        Alert.alert(t("common.error"), t("share.captureError"));
+        return;
+      }
+
+      // Share the image
+      await Sharing.shareAsync(uri, {
+        mimeType: "image/png",
+        dialogTitle: t("share.todaysColor"),
+      });
+    } catch (error) {
+      console.error("Error sharing:", error);
+      Alert.alert(t("common.error"), t("share.shareError"));
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const saveToStory = async () => {
+    if (!todaysColor || sharing) return;
+
+    setSharing(true);
+    try {
+      // Request media library permissions
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(t("common.error"), t("share.permissionDenied"));
+        return;
+      }
+
+      // Capture the shareable card as image
+      const uri = await shareableCardRef.current?.capture?.();
+      if (!uri) {
+        Alert.alert(t("common.error"), t("share.captureError"));
+        return;
+      }
+
+      // Save to media library
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert(t("share.success"), t("share.savedToGallery"));
+    } catch (error) {
+      console.error("Error saving to story:", error);
+      Alert.alert(t("common.error"), t("share.saveError"));
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Refresh data when screen comes into focus (e.g., when returning from settings)
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+    }, [])
+  );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.titleSection}>
+            <Text style={styles.title}>{t("home.title")}</Text>
+            <Text style={styles.date}>{formatDate(new Date(), isRTL)}</Text>
+          </View>
+          {groupPicture && (
+            <View style={styles.groupPictureContainer}>
+              <Image
+                source={{ uri: groupPicture }}
+                style={styles.groupPicture}
+              />
+            </View>
+          )}
+        </View>
+      </View>
+
+      {todaysColor && (
+        <View style={styles.colorCard}>
+          <View style={styles.sockIconContainer}>
+            <Ionicons name="footsteps" size={24} color="#8E8E93" />
+          </View>
+          <Text style={styles.colorTitle}>{t("home.todaysColor")}</Text>
+          <View style={styles.colorDisplay}>
+            <View style={styles.sockPreview}>
+              <View
+                style={[
+                  styles.sockLeft,
+                  { backgroundColor: todaysColor.hexCode },
+                ]}
+              />
+              <View
+                style={[
+                  styles.sockRight,
+                  { backgroundColor: todaysColor.hexCode },
+                ]}
+              />
+            </View>
+            <Text style={styles.colorName}>{todaysColor.name}</Text>
+          </View>
+          <Text style={styles.colorDescription}>
+            {t("home.everyoneWear", {
+              color: getTranslatedColorName(todaysColor.name, t),
             })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+          </Text>
+          <View style={styles.sockEmojiContainer}>
+            <Text style={styles.sockEmoji}>🧦</Text>
+            <Text style={styles.sockEmoji}>🧦</Text>
+            <Text style={styles.sockEmoji}>🧦</Text>
+          </View>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[
+                styles.changeColorButton,
+                isRTL && styles.rtlChangeColorButton,
+              ]}
+              onPress={changeTodaysColor}
+            >
+              <Ionicons name="shuffle-outline" size={18} color="#007AFF" />
+              <Text
+                style={[
+                  styles.changeColorButtonText,
+                  isRTL && styles.rtlChangeColorButtonText,
+                ]}
+              >
+                {t("home.changeColor")}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.shareButton, isRTL && styles.rtlShareButton]}
+              onPress={shareTodaysColor}
+              disabled={sharing}
+            >
+              <Ionicons name="share-outline" size={18} color="#FFFFFF" />
+              <Text
+                style={[
+                  styles.shareButtonText,
+                  isRTL && styles.rtlShareButtonText,
+                ]}
+              >
+                SHARE
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.storyButton, isRTL && styles.rtlStoryButton]}
+              onPress={saveToStory}
+              disabled={sharing}
+            >
+              <Ionicons name="camera-outline" size={18} color="#FFFFFF" />
+              <Text
+                style={[
+                  styles.storyButtonText,
+                  isRTL && styles.rtlStoryButtonText,
+                ]}
+              >
+                STORY
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      <View style={styles.friendsSection}>
+        <View style={{ padding: 10 }}>
+          <Text style={styles.sectionTitle}>{t("home.yourGroup")}</Text>
+          <Text style={styles.sectionSubtitle}>
+            {t("home.friendsInGroup", {
+              count: friends.length,
+              plural: friends.length !== 1 ? "s" : "",
+            })}
+          </Text>
+        </View>
+
+        {friends.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="people-outline" size={48} color="#8E8E93" />
+            <Text style={styles.emptyText}>{t("home.noFriendsYet")}</Text>
+            <Text style={styles.emptySubtext}>
+              {t("home.addFriendsSettings")}
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.addFriendButton,
+                isRTL && styles.rtlAddFriendButton,
+              ]}
+              onPress={addFriendFromHome}
+            >
+              <Ionicons name="add" size={20} color="#fff" />
+              <Text
+                style={[
+                  styles.addFriendButtonText,
+                  isRTL && styles.rtlAddFriendButtonText,
+                ]}
+              >
+                {t("home.addFriend")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.friendsList}>
+            {friends.map((friend, index) => (
+              <View key={friend.id} style={styles.friendCard}>
+                <View style={styles.friendInfo}>
+                  <View
+                    style={[
+                      styles.avatar,
+                      { backgroundColor: todaysColor?.hexCode },
+                    ]}
+                  >
+                    <Text style={styles.avatarText}>
+                      {friend.name.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.friendDetails}>
+                    <Text style={styles.friendName}>{friend.name}</Text>
+                    <Text style={styles.friendStatus}>
+                      {todaysColor
+                        ? t("home.shouldWearSocks", {
+                            color: getTranslatedColorName(todaysColor.name, t),
+                          })
+                        : t("home.readyToMatch")}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.checkIcon}>
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={24}
+                    color={todaysColor?.hexCode || "#34C759"}
+                  />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+
+      <View style={styles.tipCard}>
+        <Ionicons name="bulb-outline" size={24} color="#FF9500" />
+        <View style={styles.tipContent}>
+          <Text style={styles.tipTitle}>{t("home.proTip")}</Text>
+          <Text style={styles.tipText}>{t("home.proTipText")}</Text>
+        </View>
+      </View>
+
+      <View style={styles.sockStatsCard}>
+        <Text style={styles.statsTitle}>{t("home.sockStats")}</Text>
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{friends.length}</Text>
+            <Text style={styles.statLabel}>{t("home.sockBuddies")}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>🧦</Text>
+            <Text style={styles.statLabel}>{t("home.readyToMatch")}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Hidden ShareableCard for capturing as image */}
+      <View style={styles.hiddenCard}>
+        <ViewShot
+          ref={shareableCardRef}
+          options={{ format: "png", quality: 0.9 }}
+        >
+          {todaysColor && (
+            <ShareableCard
+              todaysColor={todaysColor}
+              groupPicture={groupPicture}
+              friendsCount={friends.length}
+              isRTL={isRTL}
+            />
+          )}
+        </ViewShot>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    padding: 20,
+    paddingTop: 40,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  headerContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  titleSection: {
+    flex: 1,
+  },
+  groupPictureContainer: {
+    marginLeft: 15,
+  },
+  groupPicture: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: "#E5E5EA",
+  },
+  title: {
+    fontSize: 32,
+    fontFamily: "Vazir-Bold",
+    color: "#333",
+    paddingVertical: 5,
+  },
+  date: {
+    fontSize: 16,
+    color: "#8E8E93",
+  },
+  colorCard: {
+    margin: 20,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  colorTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 15,
+  },
+  sockIconContainer: {
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  colorDisplay: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  sockPreview: {
+    flexDirection: "row",
+    marginRight: 15,
+    gap: 5,
+  },
+  sockLeft: {
+    width: 25,
+    height: 60,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#E5E5EA",
+  },
+  sockRight: {
+    width: 25,
+    height: 60,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#E5E5EA",
+  },
+  colorName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  colorDescription: {
+    fontSize: 16,
+    color: "#666",
+    lineHeight: 22,
+  },
+  friendsSection: {
+    margin: 20,
+    marginTop: 0,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 5,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: "#8E8E93",
+    marginBottom: 20,
+  },
+  emptyState: {
+    alignItems: "center",
+    padding: 40,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontFamily: "Vazir-Bold",
+    color: "#333",
+    marginTop: 15,
+    marginBottom: 5,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#8E8E93",
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  friendsList: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  friendCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F2F2F7",
+  },
+  friendInfo: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  avatarText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  friendDetails: {
+    flex: 1,
+  },
+  friendName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 2,
+  },
+  friendStatus: {
+    fontSize: 14,
+    color: "#8E8E93",
+  },
+  checkIcon: {
+    marginLeft: 10,
+  },
+  tipCard: {
+    flexDirection: "row",
+    margin: 20,
+    padding: 15,
+    backgroundColor: "#FFF9E6",
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#FF9500",
+  },
+  tipContent: {
+    flex: 1,
+    marginLeft: 10,
+    padding: 5,
+  },
+  tipTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 5,
+  },
+  tipText: {
+    fontSize: 14,
+    color: "#666",
+    lineHeight: 20,
+  },
+  sockEmojiContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 15,
+    gap: 10,
+  },
+  sockEmoji: {
+    fontSize: 24,
+  },
+  sockStatsCard: {
+    margin: 20,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  statsTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 15,
+  },
+  statsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#007AFF",
+    marginBottom: 5,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: "#8E8E93",
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: "#F2F2F7",
+  },
+  changeColorButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F2F8FF",
+    borderWidth: 1,
+    borderColor: "#007AFF",
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    flex: 1,
+  },
+  rtlChangeColorButton: {
+    flexDirection: "row-reverse",
+  },
+  changeColorButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007AFF",
+    marginLeft: 8,
+  },
+  rtlChangeColorButtonText: {
+    marginLeft: 0,
+    marginRight: 8,
+  },
+  addFriendButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#007AFF",
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    marginTop: 20,
+    shadowColor: "#007AFF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  rtlAddFriendButton: {
+    flexDirection: "row-reverse",
+  },
+  addFriendButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    marginLeft: 8,
+  },
+  rtlAddFriendButtonText: {
+    marginLeft: 0,
+    marginRight: 8,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+    gap: 10,
+  },
+  shareButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#34C759",
+    borderWidth: 1,
+    borderColor: "#34C759",
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    flex: 1,
+  },
+  rtlShareButton: {
+    flexDirection: "row-reverse",
+  },
+  shareButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    marginLeft: 8,
+  },
+  rtlShareButtonText: {
+    marginLeft: 0,
+    marginRight: 8,
+  },
+  storyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FF9500",
+    borderWidth: 1,
+    borderColor: "#FF9500",
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    flex: 1,
+  },
+  rtlStoryButton: {
+    flexDirection: "row-reverse",
+  },
+  storyButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    marginLeft: 8,
+  },
+  rtlStoryButtonText: {
+    marginLeft: 0,
+    marginRight: 8,
+  },
+  hiddenCard: {
+    position: "absolute",
+    top: -9999,
+    left: -9999,
+    opacity: 0,
   },
 });

@@ -16,7 +16,14 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ],
+      "package": "com.ilyagh.MatchingSocks"
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +40,36 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you select profile pictures.",
+          "cameraPermission": "The app accesses your camera to let you take profile pictures."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "The app accesses your photos to save shared images.",
+          "savePhotosPermission": "The app saves shared images to your photo library."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "11b4ddf3-283f-4edb-b2e1-e728f46e9fde"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/11b4ddf3-283f-4edb-b2e1-e728f46e9fde"
     }
   }
 }
