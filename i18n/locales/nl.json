@@ -162,6 +162,8 @@
     "shareError": "Fout bij het delen van afbeelding",
     "saveError": "Fout bij het opslaan naar galerij",
     "success": "Succes",
-    "savedToGallery": "Afbeelding opgeslagen in galerij"
+    "savedToGallery": "Afbeelding opgeslagen in galerij",
+    "streakDayAchieved": "🎉 Streak Dag Behaald!",
+    "streakDayMessage": "We droegen allemaal {{color}} sokken vandaag! Perfecte match! 🎉"
   }
 }

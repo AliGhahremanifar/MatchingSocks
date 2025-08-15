@@ -63,15 +63,7 @@ export default function RootLayout() {
               <Stack.Screen
                 name="(tabs)"
                 options={{
-                  headerShown: true,
-                  headerTitle: "Matching Socks",
-                  headerStyle: {
-                    backgroundColor: "#fff",
-                  },
-                  headerTintColor: "red",
-                  headerTitleStyle: {
-                    fontWeight: "600",
-                  },
+                  headerShown: false,
                 }}
               />
               <Stack.Screen name="+not-found" />

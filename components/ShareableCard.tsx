@@ -11,6 +11,8 @@ interface ShareableCardProps {
   groupPicture?: string | null;
   friendsCount: number;
   isRTL: boolean;
+  isStreakDay?: boolean;
+  streakDays?: number;
 }
 
 export default function ShareableCard({
@@ -18,11 +20,20 @@ export default function ShareableCard({
   groupPicture,
   friendsCount,
   isRTL,
+  isStreakDay = false,
+  streakDays = 0,
 }: ShareableCardProps) {
   const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
+      {/* Strike Day Badge */}
+      {isStreakDay && (
+        <View style={styles.streakDayBadge}>
+          <Ionicons name="trophy" size={16} color="#FFFFFF" />
+          <Text style={styles.streakDayBadgeText}>🔥 {streakDays}</Text>
+        </View>
+      )}
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
@@ -46,7 +57,9 @@ export default function ShareableCard({
         <View style={styles.sockIconContainer}>
           <Ionicons name="footsteps" size={24} color="#8E8E93" />
         </View>
-        <Text style={styles.colorTitle}>{t("home.todaysColor")}</Text>
+        <Text style={styles.colorTitle}>
+          {isStreakDay ? t("share.streakDayAchieved") : t("home.todaysColor")}
+        </Text>
         <View style={styles.colorDisplay}>
           <View style={styles.sockPreview}>
             <View
@@ -67,14 +80,28 @@ export default function ShareableCard({
           </Text>
         </View>
         <Text style={styles.colorDescription}>
-          {t("home.everyoneWear", {
-            color: getTranslatedColorName(todaysColor.name, t),
-          })}
+          {isStreakDay
+            ? t("share.streakDayMessage", {
+                color: getTranslatedColorName(todaysColor.name, t),
+              })
+            : t("home.everyoneWear", {
+                color: getTranslatedColorName(todaysColor.name, t),
+              })}
         </Text>
         <View style={styles.sockEmojiContainer}>
-          <Text style={styles.sockEmoji}>🧦</Text>
-          <Text style={styles.sockEmoji}>🧦</Text>
-          <Text style={styles.sockEmoji}>🧦</Text>
+          {isStreakDay ? (
+            <>
+              <Text style={styles.sockEmoji}>🎉</Text>
+              <Text style={styles.sockEmoji}>🧦</Text>
+              <Text style={styles.sockEmoji}>🎉</Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.sockEmoji}>🧦</Text>
+              <Text style={styles.sockEmoji}>🧦</Text>
+              <Text style={styles.sockEmoji}>🧦</Text>
+            </>
+          )}
         </View>
       </View>
 
@@ -84,6 +111,7 @@ export default function ShareableCard({
           {t("share.friendsInGroup", { count: friendsCount })}
         </Text>
         <Text style={styles.appName}>Matching Socks</Text>
+        <Text style={styles.poweredBy}>Powered by AI Colonizer</Text>
       </View>
     </View>
   );
@@ -94,6 +122,7 @@ const styles = StyleSheet.create({
     width: 375,
     backgroundColor: "#f5f5f5",
     padding: 20,
+    position: "relative",
   },
   header: {
     padding: 20,
@@ -212,5 +241,35 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#007AFF",
+    marginBottom: 5,
+  },
+  poweredBy: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#8E8E93",
+    fontStyle: "italic",
+  },
+  streakDayBadge: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    backgroundColor: "#FF6B6B",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 1,
+  },
+  streakDayBadgeText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginLeft: 4,
   },
 });

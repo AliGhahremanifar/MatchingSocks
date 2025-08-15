@@ -361,6 +361,19 @@ export default function SettingsScreen() {
           </Text>
           <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
         </TouchableOpacity>
+
+        <View
+          style={[
+            styles.poweredByContainer,
+            isRTL && styles.rtlPoweredByContainer,
+          ]}
+        >
+          <Text
+            style={[styles.poweredByText, isRTL && styles.rtlPoweredByText]}
+          >
+            Powered by AI Colonizer
+          </Text>
+        </View>
       </View>
 
       {renderAddFriendModal()}
@@ -653,5 +666,23 @@ const styles = StyleSheet.create({
   },
   rtlColorPickerName: {
     textAlign: "right",
+  },
+  poweredByContainer: {
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+  },
+  rtlPoweredByContainer: {
+    alignItems: "center",
+  },
+  poweredByText: {
+    fontSize: 14,
+    color: "#8E8E93",
+    fontStyle: "italic",
+    textAlign: "center",
+  },
+  rtlPoweredByText: {
+    textAlign: "center",
+    fontFamily: "Vazir-Medium",
   },
 });

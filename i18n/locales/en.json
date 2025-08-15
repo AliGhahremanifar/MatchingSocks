@@ -165,6 +165,8 @@
     "shareError": "Failed to share image",
     "saveError": "Failed to save to gallery",
     "success": "Success",
-    "savedToGallery": "Image saved to gallery"
+    "savedToGallery": "Image saved to gallery",
+    "streakDayAchieved": "🎉 Streak Day Achieved!",
+    "streakDayMessage": "We all wore {{color}} socks today! Perfect match! 🎉"
   }
 }

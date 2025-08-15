@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import * as MediaLibrary from "expo-media-library";
 import * as Sharing from "expo-sharing";
@@ -37,6 +38,10 @@ export default function HomeScreen() {
   const [groupPicture, setGroupPicture] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [isStreakDay, setIsStreakDay] = useState(true);
+  const [streakDays, setStreakDays] = useState(0);
+  const [lastShareDate, setLastShareDate] = useState<string | null>(null);
+  const [consecutiveMissedDays, setConsecutiveMissedDays] = useState(0);
   const shareableCardRef = useRef<ViewShot>(null);
 
   const loadData = async () => {
@@ -49,6 +54,29 @@ export default function HomeScreen() {
       setFriends(friendsData);
       setTodaysColor(colorData);
       setGroupPicture(pictureData);
+
+      // Load streak data
+      const [storedStreakDays, storedLastShareDate, storedMissedDays] =
+        await Promise.all([
+          AsyncStorage.getItem("streakDays"),
+          AsyncStorage.getItem("lastShareDate"),
+          AsyncStorage.getItem("consecutiveMissedDays"),
+        ]);
+
+      if (storedStreakDays) {
+        const loadedStreak = parseInt(storedStreakDays);
+        setStreakDays(loadedStreak);
+        console.log(`Loaded streak: ${loadedStreak}`);
+      }
+      if (storedLastShareDate) {
+        setLastShareDate(storedLastShareDate);
+      }
+      if (storedMissedDays) {
+        setConsecutiveMissedDays(parseInt(storedMissedDays));
+      }
+
+      // Check streak status
+      await checkStreakStatus();
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -127,6 +155,10 @@ export default function HomeScreen() {
         mimeType: "image/png",
         dialogTitle: t("share.todaysColor"),
       });
+
+      // Update streak after successful share
+      console.log("Share successful, updating streak...");
+      await updateStreakOnShare();
     } catch (error) {
       console.error("Error sharing:", error);
       Alert.alert(t("common.error"), t("share.shareError"));
@@ -135,34 +167,59 @@ export default function HomeScreen() {
     }
   };
 
-  const saveToStory = async () => {
-    if (!todaysColor || sharing) return;
+  const checkStreakStatus = async () => {
+    const today = new Date().toISOString().split("T")[0];
 
-    setSharing(true);
-    try {
-      // Request media library permissions
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(t("common.error"), t("share.permissionDenied"));
-        return;
-      }
-
-      // Capture the shareable card as image
-      const uri = await shareableCardRef.current?.capture?.();
-      if (!uri) {
-        Alert.alert(t("common.error"), t("share.captureError"));
-        return;
-      }
-
-      // Save to media library
-      await MediaLibrary.saveToLibraryAsync(uri);
-      Alert.alert(t("share.success"), t("share.savedToGallery"));
-    } catch (error) {
-      console.error("Error saving to story:", error);
-      Alert.alert(t("common.error"), t("share.saveError"));
-    } finally {
-      setSharing(false);
+    if (!lastShareDate) {
+      // First time using the app
+      return;
     }
+
+    const daysDiff = Math.floor(
+      (new Date(today).getTime() - new Date(lastShareDate).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+
+    if (daysDiff === 0) {
+      // Same day, no change needed
+      return;
+    } else if (daysDiff === 1) {
+      // Missed one day - freeze streak
+      setConsecutiveMissedDays(1);
+      await AsyncStorage.setItem("consecutiveMissedDays", "1");
+    } else if (daysDiff >= 2) {
+      // Missed 2 or more days - reset streak
+      setStreakDays(0);
+      setConsecutiveMissedDays(0);
+      await Promise.all([
+        AsyncStorage.setItem("streakDays", "0"),
+        AsyncStorage.setItem("consecutiveMissedDays", "0"),
+      ]);
+    }
+  };
+
+  const updateStreakOnShare = async () => {
+    const today = new Date().toISOString().split("T")[0];
+
+    if (lastShareDate === today) {
+      // Already shared today, don't increment
+      return;
+    }
+
+    // Always increment streak by 2 when sharing (daily share + daily bonus)
+    const newStreakDays = streakDays + 2;
+
+    setStreakDays(newStreakDays);
+    setLastShareDate(today);
+    setConsecutiveMissedDays(0);
+
+    await Promise.all([
+      AsyncStorage.setItem("streakDays", newStreakDays.toString()),
+      AsyncStorage.setItem("lastShareDate", today),
+      AsyncStorage.setItem("consecutiveMissedDays", "0"),
+    ]);
+
+    console.log(`Streak updated: ${streakDays} → ${newStreakDays}`);
   };
 
   useEffect(() => {
@@ -202,6 +259,12 @@ export default function HomeScreen() {
 
       {todaysColor && (
         <View style={styles.colorCard}>
+          {isStreakDay && (
+            <View style={styles.streakDayBadge}>
+              <Ionicons name="trophy" size={16} color="#FFFFFF" />
+              <Text style={styles.streakDayBadgeText}>🔥 {streakDays}</Text>
+            </View>
+          )}
           <View style={styles.sockIconContainer}>
             <Ionicons name="footsteps" size={24} color="#8E8E93" />
           </View>
@@ -264,23 +327,7 @@ export default function HomeScreen() {
                   isRTL && styles.rtlShareButtonText,
                 ]}
               >
-                SHARE
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.storyButton, isRTL && styles.rtlStoryButton]}
-              onPress={saveToStory}
-              disabled={sharing}
-            >
-              <Ionicons name="camera-outline" size={18} color="#FFFFFF" />
-              <Text
-                style={[
-                  styles.storyButtonText,
-                  isRTL && styles.rtlStoryButtonText,
-                ]}
-              >
-                STORY
+                {t("share.share")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -397,6 +444,8 @@ export default function HomeScreen() {
               groupPicture={groupPicture}
               friendsCount={friends.length}
               isRTL={isRTL}
+              isStreakDay={isStreakDay}
+              streakDays={streakDays}
             />
           )}
         </ViewShot>
@@ -455,6 +504,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    position: "relative",
   },
   colorTitle: {
     fontSize: 18,
@@ -711,6 +761,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 15,
+    marginBottom: 10,
     gap: 10,
   },
   shareButton: {
@@ -738,30 +789,29 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     marginRight: 8,
   },
-  storyButton: {
+
+  streakDayBadge: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    backgroundColor: "#FF6B6B",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FF9500",
-    borderWidth: 1,
-    borderColor: "#FF9500",
-    borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    flex: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 1,
   },
-  rtlStoryButton: {
-    flexDirection: "row-reverse",
-  },
-  storyButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
+  streakDayBadgeText: {
+    fontSize: 12,
+    fontWeight: "bold",
     color: "#FFFFFF",
-    marginLeft: 8,
-  },
-  rtlStoryButtonText: {
-    marginLeft: 0,
-    marginRight: 8,
+    marginLeft: 4,
   },
   hiddenCard: {
     position: "absolute",
