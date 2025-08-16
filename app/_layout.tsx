@@ -1,8 +1,4 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -11,16 +7,15 @@ import "react-native-reanimated";
 import "../i18n";
 
 import { useTranslation } from "react-i18next";
-import { useColorScheme } from "../hooks/useColorScheme";
 import { LanguageProvider } from "../hooks/useLanguage";
 import { isFirstTime } from "../utils/storage";
 
 function AppContent({ isFirstTimeUser }: { isFirstTimeUser: boolean }) {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
+  // Force light mode - ignore system dark mode setting
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={DefaultTheme}>
       <Stack>
         {isFirstTimeUser ? (
           <Stack.Screen
@@ -57,7 +52,7 @@ function AppContent({ isFirstTimeUser }: { isFirstTimeUser: boolean }) {
           </>
         )}
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
     </ThemeProvider>
   );
 }

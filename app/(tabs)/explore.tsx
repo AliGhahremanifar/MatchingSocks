@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: "Vazir-Bold",
     color: "#333",
-    paddingTop: 10,
+    paddingTop: 20,
     paddingBottom: 15,
   },
   subtitle: {
