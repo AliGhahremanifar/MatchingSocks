@@ -174,6 +174,20 @@ export const resetFirstTime = async (): Promise<void> => {
   }
 };
 
+export const resetAllData = async (): Promise<void> => {
+  try {
+    await Promise.all([
+      AsyncStorage.removeItem(STORAGE_KEYS.IS_FIRST_TIME),
+      AsyncStorage.removeItem(STORAGE_KEYS.FRIENDS),
+      AsyncStorage.removeItem(STORAGE_KEYS.COLORS),
+      AsyncStorage.removeItem(STORAGE_KEYS.GROUP_PICTURE),
+      AsyncStorage.removeItem(STORAGE_KEYS.DAILY_COLORS),
+    ]);
+  } catch (error) {
+    console.error("Error resetting all data:", error);
+  }
+};
+
 // Generate random color for today
 export const generateTodaysColor = async (): Promise<SockColor> => {
   const colors = await getColors();

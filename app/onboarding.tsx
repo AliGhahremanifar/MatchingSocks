@@ -82,14 +82,21 @@ export default function OnboardingScreen() {
     }
 
     try {
+      console.log("Starting onboarding completion..."); // Debug log
       await saveFriends(friends);
+      console.log("Friends saved"); // Debug log
       await saveColors(selectedColors);
+      console.log("Colors saved"); // Debug log
       if (groupPicture) {
         await saveGroupPicture(groupPicture);
+        console.log("Group picture saved"); // Debug log
       }
+
       await setFirstTimeComplete();
+      console.log("First time complete set"); // Debug log
       router.replace("/(tabs)");
     } catch (error) {
+      console.error("Error during onboarding completion:", error); // Debug log
       Alert.alert(t("common.error"), t("onboarding.errorSaveFailed"));
     }
   };

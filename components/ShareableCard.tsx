@@ -1,6 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { useTranslation } from "react-i18next";
 import { SockColor } from "../types";
@@ -24,6 +32,21 @@ export default function ShareableCard({
   streakDays = 0,
 }: ShareableCardProps) {
   const { t } = useTranslation();
+
+  const handleLinkedInPress = async () => {
+    try {
+      const url = "https://www.linkedin.com/in/alighahremanifar/";
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Error", "Cannot open this URL");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to open the website");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -111,7 +134,9 @@ export default function ShareableCard({
           {t("share.friendsInGroup", { count: friendsCount })}
         </Text>
         <Text style={styles.appName}>Matching Socks</Text>
-        <Text style={styles.poweredBy}>Powered by AI Colonizer</Text>
+        <TouchableOpacity onPress={handleLinkedInPress}>
+          <Text style={styles.poweredBy}>Powered by Ali Ghahremanifar</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

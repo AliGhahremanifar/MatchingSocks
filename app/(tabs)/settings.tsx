@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -25,7 +26,7 @@ import {
   getFriends,
   getGroupPicture,
   getTranslatedColorName,
-  resetFirstTime,
+  resetAllData,
   saveColors,
   saveFriends,
   saveGroupPicture,
@@ -33,13 +34,14 @@ import {
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, currentLanguage } = useLanguage();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [colors, setColors] = useState<SockColor[]>([]);
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [newFriendName, setNewFriendName] = useState("");
   const [groupPicture, setGroupPicture] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadData();
@@ -47,6 +49,7 @@ export default function SettingsScreen() {
 
   const loadData = async () => {
     try {
+      setIsLoading(true);
       const [friendsData, colorsData, pictureData] = await Promise.all([
         getFriends(),
         getColors(),
@@ -57,6 +60,8 @@ export default function SettingsScreen() {
       setGroupPicture(pictureData);
     } catch (error) {
       console.error("Error loading data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -120,6 +125,21 @@ export default function SettingsScreen() {
     await saveColors(updatedColors);
   };
 
+  const handleLinkedInPress = async () => {
+    try {
+      const url = "https://www.linkedin.com/in/alighahremanifar/";
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Error", "Cannot open this URL");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to open the website");
+    }
+  };
+
   const handleGroupPictureChange = async (pictureUri: string) => {
     setGroupPicture(pictureUri);
     await saveGroupPicture(pictureUri);
@@ -132,7 +152,7 @@ export default function SettingsScreen() {
         text: t("settings.resetApp"),
         style: "destructive",
         onPress: async () => {
-          await resetFirstTime();
+          await resetAllData();
           router.replace("/onboarding");
         },
       },
@@ -404,11 +424,13 @@ export default function SettingsScreen() {
             isRTL && styles.rtlPoweredByContainer,
           ]}
         >
-          <Text
-            style={[styles.poweredByText, isRTL && styles.rtlPoweredByText]}
-          >
-            Powered by AI Colonizer
-          </Text>
+          <TouchableOpacity onPress={handleLinkedInPress}>
+            <Text
+              style={[styles.poweredByText, isRTL && styles.rtlPoweredByText]}
+            >
+              Powered by Ali Ghahremanifar
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -564,6 +586,11 @@ const styles = StyleSheet.create({
     color: "#333",
     marginLeft: 15,
   },
+  infoValue: {
+    fontSize: 14,
+    color: "#8E8E93",
+    fontFamily: "Vazir-Medium",
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -693,6 +720,10 @@ const styles = StyleSheet.create({
   rtlInfoText: {
     marginLeft: 0,
     marginRight: 15,
+    textAlign: "right",
+    fontFamily: "Vazir-Medium",
+  },
+  rtlInfoValue: {
     textAlign: "right",
     fontFamily: "Vazir-Medium",
   },

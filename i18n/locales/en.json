@@ -98,6 +98,7 @@
     "selectColorsButton": "Tap the palette button to select colors",
     "appInfo": "App Information",
     "version": "Version 1.0.0",
+    "unknown": "Unknown",
     "resetApp": "Reset App",
     "resetAppTitle": "Reset App",
     "resetAppMessage": "This will reset the app to first-time setup. All your data will be lost. Are you sure?",

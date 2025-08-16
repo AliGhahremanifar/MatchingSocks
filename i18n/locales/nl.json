@@ -95,6 +95,7 @@
     "selectColorsButton": "Tik op het palet icoon om kleuren te selecteren",
     "appInfo": "App informatie",
     "version": "Versie 1.0.0",
+    "joinTime": "Lidmaatschap tijd",
     "resetApp": "App resetten",
     "resetAppTitle": "App resetten",
     "resetAppMessage": "Dit zal de app resetten naar de eerste setup. Alle gegevens gaan verloren. Weet je het zeker?",
