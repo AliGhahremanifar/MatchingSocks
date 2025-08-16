@@ -10,12 +10,59 @@ import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import "../i18n";
 
+import { useTranslation } from "react-i18next";
 import { useColorScheme } from "../hooks/useColorScheme";
 import { LanguageProvider } from "../hooks/useLanguage";
 import { isFirstTime } from "../utils/storage";
 
-export default function RootLayout() {
+function AppContent({ isFirstTimeUser }: { isFirstTimeUser: boolean }) {
+  const { t } = useTranslation();
   const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack>
+        {isFirstTimeUser ? (
+          <Stack.Screen
+            name="onboarding"
+            options={{
+              headerShown: true,
+              headerTitle: t("onboarding.welcome"),
+              headerStyle: {
+                backgroundColor: "#fff",
+              },
+              headerTintColor: "#333",
+              headerTitleStyle: {
+                fontFamily: "Vazir-Bold",
+              },
+            }}
+          />
+        ) : (
+          <>
+            <Stack.Screen
+              name="(tabs)"
+              options={{
+                headerShown: true,
+                headerTitle: t("home.title"),
+                headerStyle: {
+                  backgroundColor: "#fff",
+                },
+                headerTintColor: "#333",
+                headerTitleStyle: {
+                  fontFamily: "Vazir-Bold",
+                },
+              }}
+            />
+            <Stack.Screen name="+not-found" />
+          </>
+        )}
+      </Stack>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     Vazir: require("../assets/fonts/Vazir-FD-WOL.ttf"),
@@ -41,45 +88,7 @@ export default function RootLayout() {
 
   return (
     <LanguageProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          {isFirstTimeUser ? (
-            <Stack.Screen
-              name="onboarding"
-              options={{
-                headerShown: true,
-                headerTitle: "Create Group",
-                headerStyle: {
-                  backgroundColor: "#fff",
-                },
-                headerTintColor: "#333",
-                headerTitleStyle: {
-                  fontFamily: "Vazir-Bold",
-                },
-              }}
-            />
-          ) : (
-            <>
-              <Stack.Screen
-                name="(tabs)"
-                options={{
-                  headerShown: true,
-                  headerTitle: "Matching Socks",
-                  headerStyle: {
-                    backgroundColor: "#fff",
-                  },
-                  headerTintColor: "#333",
-                  headerTitleStyle: {
-                    fontFamily: "Vazir-Bold",
-                  },
-                }}
-              />
-              <Stack.Screen name="+not-found" />
-            </>
-          )}
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <AppContent isFirstTimeUser={isFirstTimeUser} />
     </LanguageProvider>
   );
 }

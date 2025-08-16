@@ -238,7 +238,9 @@ export default function SettingsScreen() {
     <ScrollView style={styles.container}>
       <AdBanner streakDays={0} />
       <View style={styles.header}>
-        <Text style={[styles.title, isRTL && styles.rtlTitle]}>Settings</Text>
+        <Text style={[styles.title, isRTL && styles.rtlTitle]}>
+          {t("settings.title")}
+        </Text>
       </View>
 
       {/* Language Section */}
@@ -406,6 +408,7 @@ export default function SettingsScreen() {
           </Text>
           <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
         </TouchableOpacity>
+
         {/* 
         <TouchableOpacity
           style={[styles.infoItem, isRTL && styles.rtlInfoItem]}

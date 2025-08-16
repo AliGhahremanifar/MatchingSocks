@@ -72,7 +72,7 @@ export default function TabLayout() {
         options={{
           title: t("history.title"),
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="clock.fill" color={color} />
+            <IconSymbol size={28} name="history.fill" color={color} />
           ),
           href: null,
         }}
